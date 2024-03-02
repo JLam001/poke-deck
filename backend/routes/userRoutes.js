@@ -3,8 +3,6 @@ const router = express.Router();
 const userController = require("../controllers/userController");
 const verifyJWT = require("../middleware/verifyJWT");
 
-// Apply verifyJWT middleware only to specific routes that require authentication
-
 //FOR TESTING
 router.get("/", userController.getAllUsers);
 

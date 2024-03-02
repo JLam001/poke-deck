@@ -2,6 +2,7 @@ const { User } = require("../models");
 const bcrypt = require("bcrypt");
 
 //******THIS WORKS
+//MAYBE FOR ADMIN ONLY
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll();

@@ -3,11 +3,12 @@ const router = express.Router();
 const deckController = require("../controllers/deckController");
 const verifyJWT = require("../middleware/verifyJWT");
 
-//router.use(verifyJWT);
+//FOR TESTING
+router.get("/", deckController.getAllDecks);
 
 router
   .route("/")
-  .get(deckController.getAllDecks)
+  .get(verifyJWT, deckController.getDeck)
   .post(deckController.createNewDeck);
 
 router

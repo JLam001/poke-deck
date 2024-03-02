@@ -4,10 +4,19 @@ const express = require("express");
 const app = express();
 const { sequelize } = require("./models");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const port = process.env.PORT || 3000;
 
 app.use(cookieParser());
 app.use(express.json());
+
+// Enable CORS for all routes
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Allow requests from this origin
+    credentials: true, // Allow cookies, authorization headers, etc.
+  })
+);
 
 app.use("/user", require("./routes/userRoutes"));
 app.use("/deck", require("./routes/deckRoutes"));

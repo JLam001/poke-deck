@@ -1,5 +1,6 @@
 const { User, Deck } = require("../models");
 
+//NEED TO TEST
 const getAllDecks = async (req, res) => {
   try {
     const decks = await Deck.findAll({
@@ -18,6 +19,25 @@ const getAllDecks = async (req, res) => {
   }
 };
 
+//NEED TO TEST
+const getDeck = async (req, res) => {
+  const deckId = req.params.deckId;
+
+  try {
+    const deck = await Deck.findByPk(deckId);
+
+    if (!deck) {
+      return res.status(404).json({ error: "Deck not found" });
+    }
+
+    return res.json(deck);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Could not retrieve deck profile" });
+  }
+};
+
+//NEED TO TEST
 const createNewDeck = async (req, res) => {
   const { user_id, deck_name, body } = req.body;
   try {
@@ -42,6 +62,7 @@ const createNewDeck = async (req, res) => {
   }
 };
 
+//NEED TO TEST
 const updateDeck = async (req, res) => {
   const { deckId, deck_name, body } = req.body; // Assuming you also receive the deckId in the request body
   try {
@@ -68,6 +89,7 @@ const updateDeck = async (req, res) => {
   }
 };
 
+//NEED TO TEST
 const deleteDeck = async (req, res) => {
   const deckId = req.params.deckId;
   try {
@@ -84,6 +106,7 @@ const deleteDeck = async (req, res) => {
 
 module.exports = {
   getAllDecks,
+  getDeck,
   createNewDeck,
   updateDeck,
   deleteDeck,
