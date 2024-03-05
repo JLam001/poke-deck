@@ -15,14 +15,16 @@ const getAllUsers = async (req, res) => {
 
 //******THIS WORKS
 const getUserProfile = async (req, res) => {
-  const userId = req.params.userId;
+  const username = req.params.user_name; // Assuming the username is provided in the URL
   try {
-    // const user = await User.findByPk(userId, { include: Deck });
-    const user = await User.findByPk(userId);
+    // Find the user by their username
+    const user = await User.findOne({ where: { user_name: username } });
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
+
+    // If user is found, you can access other user details using user.user_id
     return res.json(user);
   } catch (error) {
     console.error(error);

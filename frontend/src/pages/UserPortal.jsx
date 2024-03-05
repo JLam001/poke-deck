@@ -30,11 +30,16 @@ export const UserPortal = () => {
   };
 
   const handleLogout = async () => {
+    const token = Cookies.get("accessToken");
     try {
       const response = await fetch("http://localhost:3000/auth/logout", {
         method: "POST",
-        credentials: "include", // include cookies in the request
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+      console.log(response);
       if (response.ok) {
         // Clear the access token from cookies
         Cookies.remove("accessToken");

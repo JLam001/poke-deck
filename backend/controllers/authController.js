@@ -17,56 +17,44 @@ const login = async (req, res) => {
   try {
     const { user_name, email, password } = req.body;
 
-    //Checks if user_name or email and password are provided
+    // Checks if either user_name or email and password are provided
     if ((!user_name && !email) || !password) {
       return res
         .status(400)
         .json({ message: "Both user_name or email and password are required" });
     }
 
-    //Checks if the user_name or email exists
+    // Check if the user_name or email exists
     let existingUser;
     if (user_name) {
-      existingUser = await User.findOne({
-        where: {
-          user_name: user_name,
-        },
-      });
+      existingUser = await User.findOne({ where: { user_name: user_name } });
     } else if (email) {
-      existingUser = await User.findOne({
-        where: {
-          email: email,
-        },
-      });
+      existingUser = await User.findOne({ where: { email: email } });
     }
 
-    //Checks if the User exists
+    // Checks if the User exists
     if (!existingUser) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    //Compares password from request to the password in DB
+    // Compares password from request to the password in DB
     const match = await bcrypt.compare(password, existingUser.password);
     if (!match) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    //Generates Access and Refresh Token
-    const accessToken = generateToken(existingUser, ACCESS_TOKEN_SECRET, "5m");
+    // Generates Access Token
+    const accessToken = generateToken(existingUser, ACCESS_TOKEN_SECRET, "20m");
+
+    // Generates Refresh Token
     const refreshToken = generateToken(
       existingUser,
       REFRESH_TOKEN_SECRET,
       "1d"
     );
 
-    //Saves Refresh Token to DB
-    await existingUser.update({ refreshToken });
-    res.cookie("jwt", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    // Saves Refresh Token to DB
+    await existingUser.update({ refresh_token: refreshToken });
 
     return res.status(200).json({ accessToken });
   } catch (error) {
@@ -135,37 +123,42 @@ const refresh = async (req, res) => {
 //WORKS
 const logout = async (req, res) => {
   try {
-    const jwtCookie = req.cookies?.jwt;
-
-    //Checks if the jwt cookie exists
-    if (!jwtCookie) {
-      return res.sendStatus(204);
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
-    //Clears the jwt cookie
-    // res
-    //   .clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true })
-    //   .json({ message: "Cookie cleared" });
+    // Extract user information from the middleware
+    const { user_name, email } = req.user;
 
-    jwt.verify(jwtCookie, REFRESH_TOKEN_SECRET, async (error, decoded) => {
-      if (error) {
-        console.error(error);
-        return res.status(403).json({ message: "Forbidden" });
-      }
-      await User.update(
-        { refreshToken: null },
-        {
-          where: {
-            email: decoded.UserInfo.email,
-          },
-        }
-      );
-      res
-        .clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true })
-        .json({ message: "Cookie cleared" });
-    });
+    if (!user_name && !email) {
+      return res.status(400).json({ message: "Username or email is required" });
+    }
+
+    // Clear the JWT cookie
+    res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true });
+
+    // Update the user's refresh token to null in the database
+    let user;
+    if (user_name) {
+      user = await User.findOne({
+        where: { user_name: user_name },
+      });
+    } else if (email) {
+      user = await User.findOne({ where: { email: email } });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Nullify the refresh token
+    await user.update({ refresh_token: null });
+
+    // Perform any additional logout operations here, such as updating the user's status
+
+    return res.json({ message: "Logout successful" });
   } catch (error) {
-    console.error(error);
+    console.error("Logout Error:", error);
     return res.status(500).json({ error: "Unable to logout" });
   }
 };

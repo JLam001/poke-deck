@@ -7,7 +7,7 @@ const verifyJWT = require("../middleware/verifyJWT");
 router.get("/", userController.getAllUsers);
 
 //ACTUAL ROUTES
-router.get("/:userId", verifyJWT, userController.getUserProfile);
+router.get("/:user_name", verifyJWT, userController.getUserProfile);
 router.post("/", userController.createNewUser); // No JWT verification needed here
 router.delete("/", verifyJWT, userController.deleteUser); // JWT verification applied
 router.patch("/:userId", verifyJWT, userController.updateUser); // JWT verification applied
