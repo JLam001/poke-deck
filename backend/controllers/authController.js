@@ -128,24 +128,17 @@ const logout = async (req, res) => {
     }
 
     // Extract user information from the middleware
-    const { user_name, email } = req.user;
+    const { user_id } = req.user;
 
-    if (!user_name && !email) {
-      return res.status(400).json({ message: "Username or email is required" });
+    if (!user_id) {
+      return res.status(400).json({ message: "UserId is required" });
     }
 
     // Clear the JWT cookie
     res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true });
 
     // Update the user's refresh token to null in the database
-    let user;
-    if (user_name) {
-      user = await User.findOne({
-        where: { user_name: user_name },
-      });
-    } else if (email) {
-      user = await User.findOne({ where: { email: email } });
-    }
+    let user = await User.findByPk(user_id);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -167,9 +160,7 @@ function generateToken(user, secret, expiresIn) {
   return jwt.sign(
     {
       UserInfo: {
-        user_name: user.user_name,
-        email: user.email,
-        roles: user.roles,
+        user_id: user.user_id,
       },
     },
     secret,

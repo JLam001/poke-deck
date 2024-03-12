@@ -19,21 +19,22 @@ const getAllDecks = async (req, res) => {
   }
 };
 
-//NEED TO TEST
-const getDeck = async (req, res) => {
-  const deckId = req.params.deckId;
-
+//Needs testing
+const getDecksForAuthenticatedUser = async (req, res) => {
   try {
-    const deck = await Deck.findByPk(deckId);
+    const userId = req.user.id; // Extract user ID from the authenticated request
 
-    if (!deck) {
-      return res.status(404).json({ error: "Deck not found" });
+    // Find decks associated with the user ID
+    const decks = await Deck.findAll({ where: { user_id: userId } });
+
+    if (!decks || decks.length === 0) {
+      return res.status(404).json({ error: "No decks found for this user" });
     }
 
-    return res.json(deck);
+    return res.json(decks);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Could not retrieve deck profile" });
+    console.error("Error retrieving decks:", error);
+    return res.status(500).json({ error: "An internal server error occurred" });
   }
 };
 
@@ -106,7 +107,7 @@ const deleteDeck = async (req, res) => {
 
 module.exports = {
   getAllDecks,
-  getDeck,
+  getDecksForAuthenticatedUser,
   createNewDeck,
   updateDeck,
   deleteDeck,

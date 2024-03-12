@@ -6,14 +6,15 @@ const verifyJWT = require("../middleware/verifyJWT");
 //FOR TESTING
 router.get("/", deckController.getAllDecks);
 
-router
-  .route("/")
-  .get(verifyJWT, deckController.getDeck)
-  .post(deckController.createNewDeck);
+router.route("/").post(verifyJWT, deckController.createNewDeck);
 
 router
   .route("/:deckId")
   .patch(verifyJWT, deckController.updateDeck)
   .delete(verifyJWT, deckController.deleteDeck);
+
+router
+  .route("/:userId")
+  .get(verifyJWT, deckController.getDecksForAuthenticatedUser);
 
 module.exports = router;

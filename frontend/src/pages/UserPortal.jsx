@@ -3,22 +3,34 @@ import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
 export const UserPortal = () => {
-  const [username, setUsername] = useState("");
+  const [userId, setUserId] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Retrieve the username from the JWT token stored in cookies
-    const token = Cookies.get("accessToken");
-    if (token) {
-      const decodedToken = parseJwt(token);
-      if (
-        decodedToken &&
-        decodedToken.UserInfo &&
-        decodedToken.UserInfo.user_name
-      ) {
-        setUsername(decodedToken.UserInfo.user_name);
+    const fetchUserId = async () => {
+      try {
+        const token = Cookies.get("accessToken");
+        if (!token) {
+          throw new Error("Access token not found");
+        }
+
+        const decodedToken = parseJwt(token);
+        if (
+          !decodedToken ||
+          !decodedToken.UserInfo ||
+          !decodedToken.UserInfo.user_id
+        ) {
+          throw new Error("Invalid user token");
+        }
+
+        const userId = decodedToken.UserInfo.user_id;
+        setUserId(userId);
+      } catch (error) {
+        console.error("Failed to fetch user ID:", error.message);
       }
-    }
+    };
+
+    fetchUserId();
   }, []);
 
   const parseJwt = (token) => {
@@ -30,8 +42,12 @@ export const UserPortal = () => {
   };
 
   const handleLogout = async () => {
-    const token = Cookies.get("accessToken");
     try {
+      const token = Cookies.get("accessToken");
+      if (!token) {
+        throw new Error("Access token not found");
+      }
+
       const response = await fetch("http://localhost:3000/auth/logout", {
         method: "POST",
         credentials: "include",
@@ -39,11 +55,9 @@ export const UserPortal = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response);
+
       if (response.ok) {
-        // Clear the access token from cookies
         Cookies.remove("accessToken");
-        // Navigate the user to the login page
         navigate("/");
       } else {
         console.error("Logout failed:", response.statusText);
@@ -56,10 +70,13 @@ export const UserPortal = () => {
   return (
     <div>
       <h2>User Portal</h2>
-      {username && <p>Welcome {username}!</p>}
+      <p>Welcome!</p>
       <button onClick={handleLogout}>Logout</button>
       <br />
-      <Link to='/profile'>Go to Profile</Link>
+      {/* Updated Link to include the username in the URL */}
+      <Link to={`/profile/${userId}`} state={{ userId: userId }}>
+        Go to Profile
+      </Link>
     </div>
   );
 };

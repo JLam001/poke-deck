@@ -7,6 +7,9 @@ export const HomePage = () => {
       <p>
         Please <Link to='/login'>Login</Link> to continue
       </p>
+      <p>
+        Sign up <Link to='/register'>here</Link> to register
+      </p>
     </div>
   );
 };
