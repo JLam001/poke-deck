@@ -18,8 +18,8 @@ const verifyJWT = (req, res, next) => {
     if (!decoded || !decoded.UserInfo) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    req.user = decoded.UserInfo.username || decoded.UserInfo.email;
-    req.roles = decoded.UserInfo.roles;
+    // Store the entire UserInfo object
+    req.user = decoded.UserInfo;
     next();
   });
 };

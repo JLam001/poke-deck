@@ -3,16 +3,18 @@ const router = express.Router();
 const deckController = require("../controllers/deckController");
 const verifyJWT = require("../middleware/verifyJWT");
 
-//router.use(verifyJWT);
+//FOR TESTING
+router.get("/", deckController.getAllDecks);
 
-router
-  .route("/")
-  .get(deckController.getAllDecks)
-  .post(deckController.createNewDeck);
+router.route("/").post(verifyJWT, deckController.createNewDeck);
 
 router
   .route("/:deckId")
   .patch(verifyJWT, deckController.updateDeck)
   .delete(verifyJWT, deckController.deleteDeck);
+
+router
+  .route("/:userId")
+  .get(verifyJWT, deckController.getDecksForAuthenticatedUser);
 
 module.exports = router;

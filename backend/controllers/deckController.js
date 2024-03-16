@@ -1,5 +1,6 @@
 const { User, Deck } = require("../models");
 
+//NEED TO TEST
 const getAllDecks = async (req, res) => {
   try {
     const decks = await Deck.findAll({
@@ -18,8 +19,29 @@ const getAllDecks = async (req, res) => {
   }
 };
 
+//Needs testing
+const getDecksForAuthenticatedUser = async (req, res) => {
+  try {
+    const user_id = req.user.user_id; // Extract user ID from the authenticated request
+
+    // Find decks associated with the user ID
+    const decks = await Deck.findAll({ where: { user_id: user_id } });
+
+    if (!decks || decks.length === 0) {
+      return res.status(404).json({ error: "No decks found for this user" });
+    }
+
+    return res.json(decks);
+  } catch (error) {
+    console.error("Error retrieving decks:", error);
+    return res.status(500).json({ error: "An internal server error occurred" });
+  }
+};
+
+//NEED TO TEST
 const createNewDeck = async (req, res) => {
   const { user_id, deck_name, body } = req.body;
+  console.log(user_id, deck_name, body);
   try {
     if (!deck_name || !body || !user_id) {
       return res.status(400).json({ error: "All fields are required!" });
@@ -42,6 +64,7 @@ const createNewDeck = async (req, res) => {
   }
 };
 
+//NEED TO TEST
 const updateDeck = async (req, res) => {
   const { deckId, deck_name, body } = req.body; // Assuming you also receive the deckId in the request body
   try {
@@ -68,6 +91,7 @@ const updateDeck = async (req, res) => {
   }
 };
 
+//NEED TO TEST
 const deleteDeck = async (req, res) => {
   const deckId = req.params.deckId;
   try {
@@ -84,6 +108,7 @@ const deleteDeck = async (req, res) => {
 
 module.exports = {
   getAllDecks,
+  getDecksForAuthenticatedUser,
   createNewDeck,
   updateDeck,
   deleteDeck,

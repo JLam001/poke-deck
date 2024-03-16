@@ -2,9 +2,13 @@ const { User } = require("../models");
 const bcrypt = require("bcrypt");
 
 //******THIS WORKS
+//MAYBE FOR ADMIN ONLY
+//Get's user data and deck data
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.findAll();
+    const users = await User.findAll({
+      include: "Decks", // Assuming 'Decks' is the name of the association in your User model
+    });
     return res.json(users);
   } catch (error) {
     console.log(error);
@@ -14,14 +18,16 @@ const getAllUsers = async (req, res) => {
 
 //******THIS WORKS
 const getUserProfile = async (req, res) => {
-  const userId = req.params.userId;
+  const userId = req.params.userId; // Assuming the user ID is provided in the URL
   try {
-    // const user = await User.findByPk(userId, { include: Deck });
+    // Find the user by their user_id (assuming it's the primary key)
     const user = await User.findByPk(userId);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
+
+    // If the user is found, you can access user details using user.user_id
     return res.json(user);
   } catch (error) {
     console.error(error);
