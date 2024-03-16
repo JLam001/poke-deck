@@ -22,10 +22,10 @@ const getAllDecks = async (req, res) => {
 //Needs testing
 const getDecksForAuthenticatedUser = async (req, res) => {
   try {
-    const userId = req.user.id; // Extract user ID from the authenticated request
+    const user_id = req.user.user_id; // Extract user ID from the authenticated request
 
     // Find decks associated with the user ID
-    const decks = await Deck.findAll({ where: { user_id: userId } });
+    const decks = await Deck.findAll({ where: { user_id: user_id } });
 
     if (!decks || decks.length === 0) {
       return res.status(404).json({ error: "No decks found for this user" });
@@ -41,6 +41,7 @@ const getDecksForAuthenticatedUser = async (req, res) => {
 //NEED TO TEST
 const createNewDeck = async (req, res) => {
   const { user_id, deck_name, body } = req.body;
+  console.log(user_id, deck_name, body);
   try {
     if (!deck_name || !body || !user_id) {
       return res.status(400).json({ error: "All fields are required!" });

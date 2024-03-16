@@ -13,8 +13,8 @@ app.use(express.json());
 // Enable CORS for all routes
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allow requests from this origin
-    credentials: true, // Allow cookies, authorization headers, etc.
+    origin: "http://localhost:5173",
+    credentials: true,
   })
 );
 

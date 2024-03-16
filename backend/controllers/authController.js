@@ -15,22 +15,17 @@ const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = process.env;
 //NEED TO TEST
 const login = async (req, res) => {
   try {
-    const { user_name, email, password } = req.body;
+    const { email, password } = req.body;
 
-    // Checks if either user_name or email and password are provided
-    if ((!user_name && !email) || !password) {
+    // Checks if either email and password are provided
+    if (!email || !password) {
       return res
         .status(400)
-        .json({ message: "Both user_name or email and password are required" });
+        .json({ message: "Both email and password are required" });
     }
 
-    // Check if the user_name or email exists
-    let existingUser;
-    if (user_name) {
-      existingUser = await User.findOne({ where: { user_name: user_name } });
-    } else if (email) {
-      existingUser = await User.findOne({ where: { email: email } });
-    }
+    // Check if the email exists
+    const existingUser = await User.findOne({ where: { email: email } });
 
     // Checks if the User exists
     if (!existingUser) {
@@ -44,7 +39,7 @@ const login = async (req, res) => {
     }
 
     // Generates Access Token
-    const accessToken = generateToken(existingUser, ACCESS_TOKEN_SECRET, "20m");
+    const accessToken = generateToken(existingUser, ACCESS_TOKEN_SECRET, "1h");
 
     // Generates Refresh Token
     const refreshToken = generateToken(
@@ -105,7 +100,6 @@ const refresh = async (req, res) => {
         ACCESS_TOKEN_SECRET,
         "5m"
       );
-      console.log(`Generated Access Token: ${accessToken}`); // Add this line for debugging
       return res.json({ accessToken });
     });
   } catch (error) {

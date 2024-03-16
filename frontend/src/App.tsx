@@ -1,19 +1,23 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
-import { UserPortal } from "./pages/UserPortal";
+import { UserPage } from "./pages/UserPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { RegistrationPage } from "./pages/RegistrationPage";
+import { Navbar } from "./components/nav/Navbar";
+import { DeckPage } from "./pages/DeckPage";
 
-export const App = () => {
+export const App: React.FC = () => {
   return (
     <Router>
+      <Navbar />
       <Routes>
         <Route path='/' element={<HomePage />} />
         <Route path='/login' element={<LoginPage />} />
-        <Route path='/user' element={<UserPortal />} />
+        <Route path='/user' element={<UserPage />} />
+        <Route path='/user/profile/:username' element={<ProfilePage />} />
+        <Route path='/user/deck' element={<DeckPage />} />
         <Route path='/register' element={<RegistrationPage />} />
-        <Route path='/profile/:username' element={<ProfilePage />} />
       </Routes>
     </Router>
   );

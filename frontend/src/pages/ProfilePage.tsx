@@ -1,24 +1,30 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { useLocation } from "react-router-dom";
 
-export const ProfilePage = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+interface User {
+  user_name: string;
+  user_id: string;
+  email: string;
+  role: string;
+}
 
-  // Get location state using useLocation hook
-  const location = useLocation();
+export const ProfilePage: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const location = useLocation(); // Remove the type argument
 
   useEffect(() => {
-    const { userId } = location.state || {};
+    const { state } = location;
+    const { userId } = state || {};
 
     const fetchUserData = async () => {
       try {
         const token = Cookies.get("accessToken");
 
         if (token && userId) {
-          // Ensure username is not null
           const response = await fetch(`http://localhost:3000/user/${userId}`, {
             method: "GET",
             headers: {
@@ -27,7 +33,7 @@ export const ProfilePage = () => {
           });
 
           if (response.ok) {
-            const userData = await response.json();
+            const userData: User = await response.json();
             setUser(userData);
           } else {
             setError("Failed to fetch user data");
@@ -43,7 +49,7 @@ export const ProfilePage = () => {
     };
 
     fetchUserData();
-  }, [location.state]);
+  }, [location]);
 
   if (loading) {
     return <div>Loading...</div>;
